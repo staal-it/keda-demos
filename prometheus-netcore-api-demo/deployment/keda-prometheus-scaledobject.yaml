@@ -1,0 +1,21 @@
+apiVersion: keda.k8s.io/v1alpha1
+kind: ScaledObject
+metadata:
+  name: prometheus-scaledobject
+  namespace: default
+  labels:
+    deploymentName: netcore-prom-app
+spec:
+  scaleTargetRef:
+    deploymentName: netcore-prom-app
+  pollingInterval: 15
+  cooldownPeriod: 30
+  minReplicaCount: 1
+  maxReplicaCount: 10
+  triggers:
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus-service.default.svc.cluster.local:9090
+      metricName: http_request_duration_seconds_bucket
+      threshold: '3'
+      query: sum(rate(http_request_duration_seconds_bucket[1m]))

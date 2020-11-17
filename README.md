@@ -24,3 +24,11 @@ or
 ```powershell
 func kubernetes deploy --name hello-keda --registry <dockerID>
 ```
+
+## Prometheus
+The prometheus-netcore-api-demo folder contains a .NET Core API that exposes metrics to Prometheus. KEDA will scale that deployment based on the number of requests. Deploy using
+```powershell
+kubectl apply -f prometheus.yaml
+kubectl apply -f app.yaml
+kubectl apply -f keda-prometheus-scaledobject.yaml
+```
