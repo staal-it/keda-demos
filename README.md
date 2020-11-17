@@ -32,3 +32,10 @@ kubectl apply -f prometheus.yaml
 kubectl apply -f app.yaml
 kubectl apply -f keda-prometheus-scaledobject.yaml
 ```
+
+## Job
+console-job-demo contains an .NET Core console application that reads data from an Azure queue. Deploy that using
+```powershell
+kubectl apply -f job.yaml
+```
+and then add an item to your queue.
