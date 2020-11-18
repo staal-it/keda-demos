@@ -1,5 +1,5 @@
 data:
-  AzureWebJobsStorage: <storage-connection-string>
+  AzureWebJobsStorage: <base64-encoded-storage-connection-string>
   FUNCTIONS_WORKER_RUNTIME: ZG90bmV0
 apiVersion: v1
 kind: Secret
@@ -7,16 +7,14 @@ metadata:
   name: working-hello-keda
   namespace: default
 ---
-apiVersion: keda.k8s.io/v1alpha1
-kind: ScaledObject
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
 metadata:
   name: queue-job
   namespace: default
 spec:
-  scaleType: job
   pollingInterval: 5
   maxReplicaCount: 10
-  cooldownPeriod: 30
   jobTargetRef:
     parallelism: 1
     completions: 1
@@ -40,4 +38,4 @@ spec:
     metadata:
       queueName: job-items
       queueLength: '1'
-      connection: AzureWebJobsStorage # Based on secret
+      connectionFromEnv: AzureWebJobsStorage # Based on secret

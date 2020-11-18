@@ -1,13 +1,11 @@
-apiVersion: keda.k8s.io/v1alpha1
+apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
   name: prometheus-scaledobject
   namespace: default
-  labels:
-    deploymentName: netcore-prom-app
 spec:
   scaleTargetRef:
-    deploymentName: netcore-prom-app
+    name: netcore-prom-app
   pollingInterval: 15
   cooldownPeriod: 30
   minReplicaCount: 1
