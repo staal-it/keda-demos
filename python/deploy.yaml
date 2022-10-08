@@ -1,0 +1,75 @@
+data:
+  FUNCTIONS_WORKER_RUNTIME: cHl0aG9u
+  AzureWebJobsStorage: <azure-storage-connectionstring>
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hello-keda-python
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-keda-python
+  labels:
+    app: hello-keda-python
+spec:
+  selector:
+    matchLabels:
+      app: hello-keda-python
+  template:
+    metadata:
+      labels:
+        app: hello-keda-python
+    spec:
+      containers:
+      - name: hello-keda-python
+        image: erwinstaal/hello-keda-python:latest
+        env:
+        - name: AzureFunctionsJobHost__functions__0
+          value: QueueTrigger
+        envFrom:
+        - secretRef:
+            name: hello-keda-python
+        readinessProbe:
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 240
+          httpGet:
+            path: /
+            port: 80
+            scheme: HTTP
+        startupProbe:
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 240
+          httpGet:
+            path: /
+            port: 80
+            scheme: HTTP
+      tolerations:
+        - key: virtual-kubelet.io/provider  # Virtual Nodes
+          operator: Exists
+    
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: hello-keda-python
+  labels: {}
+spec:
+  scaleTargetRef:
+    name: hello-keda-python
+  pollingInterval: 5 # Optional. Default: 30 seconds
+  cooldownPeriod: 5 # Optional. Default: 300 seconds
+  minReplicaCount: 0 # Optional. Default: 0
+  maxReplicaCount: 20 # Optional. Default: 100
+  triggers:
+  - type: azure-queue
+    metadata:
+      direction: in
+      queueName: myqueue-items
+      connectionFromEnv: AzureWebJobsStorage
+---
+
